@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Clock, Package, User, Building2, FileText } from 'lucide-react'
-import { OrderStatus } from '@prisma/client'
+import { OrderStatus } from '@/types/prisma'
 
 interface OrderItem {
   id: string
@@ -100,7 +100,7 @@ export function OrderDetailSheet({
               {order.status === 'PENDING' && (
                 <Button
                   size="sm"
-                  onClick={() => handleStatusChange('IN_PROGRESS')}
+                  onClick={() => handleStatusChange(OrderStatus.IN_PROGRESS)}
                   disabled={isUpdating}
                 >
                   Mark In Progress
@@ -109,7 +109,7 @@ export function OrderDetailSheet({
               {order.status === 'IN_PROGRESS' && (
                 <Button
                   size="sm"
-                  onClick={() => handleStatusChange('COMPLETED')}
+                  onClick={() => handleStatusChange(OrderStatus.COMPLETED)}
                   disabled={isUpdating}
                 >
                   Mark Completed

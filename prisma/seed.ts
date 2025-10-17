@@ -1,11 +1,8 @@
 import 'dotenv/config'
 
-import {
-  PrismaClient,
-  UserRole,
-  OrderStatus,
-} from '@prisma/client'
+import { PrismaClient } from '@prisma/client'
 import type { Hospital, DrapeType, SurgeryType, Item } from '@prisma/client'
+import { UserRole, OrderStatus } from '../types/prisma'
 
 const prisma = new PrismaClient()
 
