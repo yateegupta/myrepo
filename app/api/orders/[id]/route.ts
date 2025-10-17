@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { orderInclude, serializeOrder } from '@/lib/order'
 import type { Prisma } from '@prisma/client'
+import { UserRole } from '@/types/prisma'
 
 export async function GET(
   request: Request,
@@ -12,7 +13,7 @@ export async function GET(
   try {
     const session = await getServerSession(authOptions)
 
-    if (!session || session.user.role !== 'FULFILLMENT') {
+    if (!session || session.user.role !== UserRole.FULFILLMENT) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -39,7 +40,7 @@ export async function PATCH(
   try {
     const session = await getServerSession(authOptions)
 
-    if (!session || session.user.role !== 'FULFILLMENT') {
+    if (!session || session.user.role !== UserRole.FULFILLMENT) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 

@@ -26,7 +26,7 @@ import { OrderDetailSheet } from '@/components/order-detail-sheet'
 import { useToast } from '@/components/ui/use-toast'
 import { Loader2, Package, LogOut } from 'lucide-react'
 import { signOut } from 'next-auth/react'
-import { OrderStatus } from '@/types/prisma'
+import { OrderStatus, UserRole } from '@/types/prisma'
 
 interface OrderItem {
   id: string
@@ -93,7 +93,7 @@ export default function DashboardPage() {
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/login')
-    } else if (session?.user.role !== 'FULFILLMENT') {
+    } else if (session?.user.role !== UserRole.FULFILLMENT) {
       toast({
         title: 'Access Denied',
         description: 'You do not have permission to access this page.',
@@ -104,7 +104,7 @@ export default function DashboardPage() {
   }, [status, session, router, toast])
 
   useEffect(() => {
-    if (status === 'authenticated' && session?.user.role === 'FULFILLMENT') {
+    if (status === 'authenticated' && session?.user.role === UserRole.FULFILLMENT) {
       fetchOrders()
     }
   }, [status, session, statusFilter])
@@ -216,7 +216,7 @@ export default function DashboardPage() {
     setIsSheetOpen(true)
   }
 
-  if (status === 'loading' || (status === 'authenticated' && session?.user.role !== 'FULFILLMENT')) {
+  if (status === 'loading' || (status === 'authenticated' && session?.user.role !== UserRole.FULFILLMENT)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
