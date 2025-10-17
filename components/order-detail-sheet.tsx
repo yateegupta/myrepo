@@ -1,51 +1,51 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { format } from 'date-fns'
+import { useState } from 'react';
+import { format } from 'date-fns';
 import {
   Sheet,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTitle,
-} from '@/components/ui/sheet'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
-import { Clock, Package, User, Building2, FileText } from 'lucide-react'
-import { OrderStatus } from '@prisma/client'
+} from '@/components/ui/sheet';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { Clock, Package, User, Building2, FileText } from 'lucide-react';
+import { OrderStatus } from '@prisma/client';
 
 interface OrderItem {
-  id: string
-  itemName: string
-  quantity: number
-  notes?: string | null
+  id: string;
+  itemName: string;
+  quantity: number;
+  notes?: string | null;
 }
 
 interface Order {
-  id: string
-  orderNumber: string
-  hospital: string
-  drapeType: string
-  surgeryType: string
-  status: OrderStatus
-  customizationNotes?: string | null
-  createdAt: string
-  updatedAt: string
-  completedAt?: string | null
+  id: string;
+  orderNumber: string;
+  hospital: string;
+  drapeType: string;
+  surgeryType: string;
+  status: OrderStatus;
+  customizationNotes?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  completedAt?: string | null;
   submitter: {
-    id: string
-    name: string | null
-    email: string
-  }
-  items: OrderItem[]
+    id: string;
+    name: string | null;
+    email: string;
+  };
+  items: OrderItem[];
 }
 
 interface OrderDetailSheetProps {
-  order: Order | null
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onStatusChange: (orderId: string, status: OrderStatus) => void
+  order: Order | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onStatusChange: (orderId: string, status: OrderStatus) => void;
 }
 
 const statusColors: Record<OrderStatus, string> = {
@@ -53,14 +53,14 @@ const statusColors: Record<OrderStatus, string> = {
   IN_PROGRESS: 'bg-blue-100 text-blue-800 border-blue-200',
   COMPLETED: 'bg-green-100 text-green-800 border-green-200',
   CANCELLED: 'bg-red-100 text-red-800 border-red-200',
-}
+};
 
 const statusLabels: Record<OrderStatus, string> = {
   PENDING: 'Pending',
   IN_PROGRESS: 'In Progress',
   COMPLETED: 'Completed',
   CANCELLED: 'Cancelled',
-}
+};
 
 export function OrderDetailSheet({
   order,
@@ -68,34 +68,30 @@ export function OrderDetailSheet({
   onOpenChange,
   onStatusChange,
 }: OrderDetailSheetProps) {
-  const [isUpdating, setIsUpdating] = useState(false)
+  const [isUpdating, setIsUpdating] = useState(false);
 
-  if (!order) return null
+  if (!order) return null;
 
   const handleStatusChange = async (newStatus: OrderStatus) => {
-    setIsUpdating(true)
+    setIsUpdating(true);
     try {
-      await onStatusChange(order.id, newStatus)
+      await onStatusChange(order.id, newStatus);
     } finally {
-      setIsUpdating(false)
+      setIsUpdating(false);
     }
-  }
+  };
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full sm:max-w-2xl overflow-y-auto">
         <SheetHeader>
           <SheetTitle>Order Details</SheetTitle>
-          <SheetDescription>
-            Order #{order.orderNumber}
-          </SheetDescription>
+          <SheetDescription>Order #{order.orderNumber}</SheetDescription>
         </SheetHeader>
 
         <div className="mt-6 space-y-6">
           <div className="flex items-center justify-between">
-            <Badge className={statusColors[order.status]}>
-              {statusLabels[order.status]}
-            </Badge>
+            <Badge className={statusColors[order.status]}>{statusLabels[order.status]}</Badge>
             <div className="flex gap-2">
               {order.status === 'PENDING' && (
                 <Button
@@ -187,18 +183,13 @@ export function OrderDetailSheet({
           <div>
             <h3 className="text-lg font-semibold mb-3">Order Items</h3>
             <div className="space-y-3">
-              {order.items.map((item) => (
-                <div
-                  key={item.id}
-                  className="border rounded-lg p-4 space-y-2"
-                >
+              {order.items.map(item => (
+                <div key={item.id} className="border rounded-lg p-4 space-y-2">
                   <div className="flex justify-between items-start">
                     <p className="font-medium">{item.itemName}</p>
                     <Badge variant="secondary">Qty: {item.quantity}</Badge>
                   </div>
-                  {item.notes && (
-                    <p className="text-sm text-muted-foreground">{item.notes}</p>
-                  )}
+                  {item.notes && <p className="text-sm text-muted-foreground">{item.notes}</p>}
                 </div>
               ))}
             </div>
@@ -206,5 +197,5 @@ export function OrderDetailSheet({
         </div>
       </SheetContent>
     </Sheet>
-  )
+  );
 }

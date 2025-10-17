@@ -1,11 +1,11 @@
-import { PrismaClient, UserRole, OrderStatus } from '@prisma/client'
+import { PrismaClient, UserRole, OrderStatus } from '@prisma/client';
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 async function main() {
-  await prisma.orderItem.deleteMany()
-  await prisma.order.deleteMany()
-  await prisma.user.deleteMany()
+  await prisma.orderItem.deleteMany();
+  await prisma.order.deleteMany();
+  await prisma.user.deleteMany();
 
   const submitter1 = await prisma.user.create({
     data: {
@@ -14,7 +14,7 @@ async function main() {
       role: UserRole.SUBMITTER,
       password: 'password123',
     },
-  })
+  });
 
   const submitter2 = await prisma.user.create({
     data: {
@@ -23,7 +23,7 @@ async function main() {
       role: UserRole.SUBMITTER,
       password: 'password123',
     },
-  })
+  });
 
   const fulfillment = await prisma.user.create({
     data: {
@@ -32,7 +32,7 @@ async function main() {
       role: UserRole.FULFILLMENT,
       password: 'password123',
     },
-  })
+  });
 
   const admin = await prisma.user.create({
     data: {
@@ -41,7 +41,7 @@ async function main() {
       role: UserRole.ADMIN,
       password: 'password123',
     },
-  })
+  });
 
   const order1 = await prisma.order.create({
     data: {
@@ -69,7 +69,7 @@ async function main() {
         ],
       },
     },
-  })
+  });
 
   const order2 = await prisma.order.create({
     data: {
@@ -92,7 +92,7 @@ async function main() {
         ],
       },
     },
-  })
+  });
 
   const order3 = await prisma.order.create({
     data: {
@@ -115,7 +115,7 @@ async function main() {
         ],
       },
     },
-  })
+  });
 
   const order4 = await prisma.order.create({
     data: {
@@ -141,22 +141,22 @@ async function main() {
         ],
       },
     },
-  })
+  });
 
-  console.log('Database seeded successfully!')
-  console.log('Users created:')
-  console.log('- Submitter:', submitter1.email)
-  console.log('- Submitter:', submitter2.email)
-  console.log('- Fulfillment:', fulfillment.email)
-  console.log('- Admin:', admin.email)
-  console.log('\nOrders created:', 4)
+  console.log('Database seeded successfully!');
+  console.log('Users created:');
+  console.log('- Submitter:', submitter1.email);
+  console.log('- Submitter:', submitter2.email);
+  console.log('- Fulfillment:', fulfillment.email);
+  console.log('- Admin:', admin.email);
+  console.log('\nOrders created:', 4);
 }
 
 main()
-  .catch((e) => {
-    console.error(e)
-    process.exit(1)
+  .catch(e => {
+    console.error(e);
+    process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect()
-  })
+    await prisma.$disconnect();
+  });

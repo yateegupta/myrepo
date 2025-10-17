@@ -1,9 +1,11 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from 'react'
-import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
-import { format } from 'date-fns'
+import { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+
+export const dynamic = 'force-dynamic';
+import { format } from 'date-fns';
 import {
   Table,
   TableBody,
@@ -11,47 +13,47 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+} from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { OrderDetailSheet } from '@/components/order-detail-sheet'
-import { useToast } from '@/components/ui/use-toast'
-import { Loader2, Package, LogOut } from 'lucide-react'
-import { signOut } from 'next-auth/react'
-import { OrderStatus } from '@prisma/client'
+} from '@/components/ui/select';
+import { OrderDetailSheet } from '@/components/order-detail-sheet';
+import { useToast } from '@/components/ui/use-toast';
+import { Loader2, Package, LogOut } from 'lucide-react';
+import { signOut } from 'next-auth/react';
+import { OrderStatus } from '@prisma/client';
 
 interface OrderItem {
-  id: string
-  itemName: string
-  quantity: number
-  notes?: string | null
+  id: string;
+  itemName: string;
+  quantity: number;
+  notes?: string | null;
 }
 
 interface Order {
-  id: string
-  orderNumber: string
-  hospital: string
-  drapeType: string
-  surgeryType: string
-  status: OrderStatus
-  customizationNotes?: string | null
-  createdAt: string
-  updatedAt: string
-  completedAt?: string | null
+  id: string;
+  orderNumber: string;
+  hospital: string;
+  drapeType: string;
+  surgeryType: string;
+  status: OrderStatus;
+  customizationNotes?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  completedAt?: string | null;
   submitter: {
-    id: string
-    name: string | null
-    email: string
-  }
-  items: OrderItem[]
+    id: string;
+    name: string | null;
+    email: string;
+  };
+  items: OrderItem[];
 }
 
 const statusColors: Record<OrderStatus, string> = {
@@ -59,78 +61,75 @@ const statusColors: Record<OrderStatus, string> = {
   IN_PROGRESS: 'bg-blue-100 text-blue-800 border-blue-200',
   COMPLETED: 'bg-green-100 text-green-800 border-green-200',
   CANCELLED: 'bg-red-100 text-red-800 border-red-200',
-}
+};
 
 const statusLabels: Record<OrderStatus, string> = {
   PENDING: 'Pending',
   IN_PROGRESS: 'In Progress',
   COMPLETED: 'Completed',
   CANCELLED: 'Cancelled',
-}
+};
 
 export default function DashboardPage() {
-  const { data: session, status } = useSession()
-  const router = useRouter()
-  const { toast } = useToast()
-  const [orders, setOrders] = useState<Order[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
-  const [isSheetOpen, setIsSheetOpen] = useState(false)
-  const [statusFilter, setStatusFilter] = useState<string>('all')
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const { toast } = useToast();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<string>('all');
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/login')
+      router.push('/login');
     } else if (session?.user.role !== 'FULFILLMENT') {
       toast({
         title: 'Access Denied',
         description: 'You do not have permission to access this page.',
         variant: 'destructive',
-      })
-      router.push('/login')
+      });
+      router.push('/login');
     }
-  }, [status, session, router, toast])
+  }, [status, session, router, toast]);
 
   useEffect(() => {
     if (status === 'authenticated' && session?.user.role === 'FULFILLMENT') {
-      fetchOrders()
+      fetchOrders();
     }
-  }, [status, session, statusFilter])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status, session, statusFilter]);
 
   const fetchOrders = async () => {
     try {
-      setIsLoading(true)
-      const url = statusFilter === 'all' 
-        ? '/api/orders' 
-        : `/api/orders?status=${statusFilter}`
-      const response = await fetch(url)
+      setIsLoading(true);
+      const url = statusFilter === 'all' ? '/api/orders' : `/api/orders?status=${statusFilter}`;
+      const response = await fetch(url);
       if (response.ok) {
-        const data = await response.json()
-        setOrders(data)
+        const data = await response.json();
+        setOrders(data);
       } else {
-        throw new Error('Failed to fetch orders')
+        throw new Error('Failed to fetch orders');
       }
     } catch (error) {
       toast({
         title: 'Error',
         description: 'Failed to fetch orders',
         variant: 'destructive',
-      })
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleStatusChange = async (orderId: string, newStatus: OrderStatus) => {
     const optimisticOrders = orders.map(order =>
-      order.id === orderId
-        ? { ...order, status: newStatus }
-        : order
-    )
-    setOrders(optimisticOrders)
+      order.id === orderId ? { ...order, status: newStatus } : order
+    );
+    setOrders(optimisticOrders);
 
     if (selectedOrder?.id === orderId) {
-      setSelectedOrder({ ...selectedOrder, status: newStatus })
+      setSelectedOrder({ ...selectedOrder, status: newStatus });
     }
 
     try {
@@ -140,52 +139,53 @@ export default function DashboardPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ status: newStatus }),
-      })
+      });
 
       if (!response.ok) {
-        throw new Error('Failed to update order')
+        throw new Error('Failed to update order');
       }
 
-      const updatedOrder = await response.json()
-      
+      const updatedOrder = await response.json();
+
       setOrders(prevOrders =>
-        prevOrders.map(order =>
-          order.id === orderId ? updatedOrder : order
-        )
-      )
+        prevOrders.map(order => (order.id === orderId ? updatedOrder : order))
+      );
 
       if (selectedOrder?.id === orderId) {
-        setSelectedOrder(updatedOrder)
+        setSelectedOrder(updatedOrder);
       }
 
       toast({
         title: 'Success',
         description: `Order status updated to ${statusLabels[newStatus]}`,
-      })
+      });
     } catch (error) {
-      setOrders(orders)
+      setOrders(orders);
       if (selectedOrder) {
-        setSelectedOrder({ ...selectedOrder })
+        setSelectedOrder({ ...selectedOrder });
       }
       toast({
         title: 'Error',
         description: 'Failed to update order status',
         variant: 'destructive',
-      })
+      });
     }
-  }
+  };
 
   const handleRowClick = (order: Order) => {
-    setSelectedOrder(order)
-    setIsSheetOpen(true)
-  }
+    setSelectedOrder(order);
+    setIsSheetOpen(true);
+  };
 
-  if (status === 'loading' || (status === 'authenticated' && session?.user.role !== 'FULFILLMENT')) {
+  if (
+    status === 'loading' ||
+    (status === 'authenticated' && session?.user.role !== 'FULFILLMENT')
+  ) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
-    )
+    );
   }
 
   return (
@@ -197,9 +197,7 @@ export default function DashboardPage() {
               <Package className="h-8 w-8 text-primary" />
               <div>
                 <h1 className="text-2xl font-bold">Fulfillment Dashboard</h1>
-                <p className="text-sm text-muted-foreground">
-                  Manage and track orders
-                </p>
+                <p className="text-sm text-muted-foreground">Manage and track orders</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
@@ -226,9 +224,7 @@ export default function DashboardPage() {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
                 <CardTitle>Orders</CardTitle>
-                <CardDescription>
-                  View and manage all fulfillment orders
-                </CardDescription>
+                <CardDescription>View and manage all fulfillment orders</CardDescription>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">Filter by status:</span>
@@ -277,7 +273,7 @@ export default function DashboardPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {orders.map((order) => (
+                    {orders.map(order => (
                       <TableRow
                         key={order.id}
                         className="cursor-pointer hover:bg-muted/50"
@@ -286,18 +282,12 @@ export default function DashboardPage() {
                         <TableCell className="font-medium">
                           {order.orderNumber.slice(0, 8)}
                         </TableCell>
-                        <TableCell className="hidden md:table-cell">
-                          {order.hospital}
-                        </TableCell>
+                        <TableCell className="hidden md:table-cell">{order.hospital}</TableCell>
                         <TableCell className="hidden sm:table-cell">
                           {order.submitter.name || order.submitter.email}
                         </TableCell>
-                        <TableCell className="hidden lg:table-cell">
-                          {order.surgeryType}
-                        </TableCell>
-                        <TableCell className="hidden lg:table-cell">
-                          {order.drapeType}
-                        </TableCell>
+                        <TableCell className="hidden lg:table-cell">{order.surgeryType}</TableCell>
+                        <TableCell className="hidden lg:table-cell">{order.drapeType}</TableCell>
                         <TableCell>
                           <Badge className={statusColors[order.status]}>
                             {statusLabels[order.status]}
@@ -323,5 +313,5 @@ export default function DashboardPage() {
         onStatusChange={handleStatusChange}
       />
     </div>
-  )
+  );
 }
