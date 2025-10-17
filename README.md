@@ -20,15 +20,15 @@ A modern web application for managing fulfillment operations, built with Next.js
 - **UI Components**: Radix UI (via shadcn/ui)
 - **Database ORM**: Prisma
 - **Authentication**: NextAuth.js
-- **Database**: PostgreSQL
+- **Database**: SQLite (local) with optional PostgreSQL support
 
 ## Getting Started
 
 ### Prerequisites
 
 - Node.js 18+ installed
-- PostgreSQL database
 - npm or yarn package manager
+- (Optional) PostgreSQL database if you plan to run against Postgres instead of the default SQLite database
 
 ### Installation
 
@@ -48,17 +48,23 @@ npm install
 cp .env.example .env
 ```
 
-Edit `.env` and configure your database connection and NextAuth settings:
+Edit `.env` and configure your database connection and NextAuth settings. By default the project uses SQLite for local development:
 ```
-DATABASE_URL="postgresql://user:password@localhost:5432/fulfillment_db?schema=public"
+DATABASE_URL="file:./dev.db"
 NEXTAUTH_URL="http://localhost:3000"
 NEXTAUTH_SECRET="your-secret-key-here"
 ```
 
+If you prefer PostgreSQL, replace the `DATABASE_URL` value with your Postgres connection string:
+```
+DATABASE_URL="postgresql://user:password@localhost:5432/fulfillment_db?schema=public"
+```
+When switching providers, update the `provider` value in `prisma/schema.prisma` to `postgresql` before running migrations.
+
 4. Set up the database:
 ```bash
 npm run db:generate
-npm run db:push
+npm run db:migrate
 npm run db:seed
 ```
 
@@ -77,9 +83,10 @@ After seeding the database, you can log in with:
 - **Password**: password123
 - **Role**: FULFILLMENT
 
-Other test accounts:
-- submitter@example.com (SUBMITTER role)
+Other test accounts (password `password123`):
 - admin@example.com (ADMIN role)
+- sarah.connor@generalhospital.org (SUBMITTER role)
+- jack.ryan@stmary.org (SUBMITTER role)
 
 ## Project Structure
 
@@ -106,20 +113,39 @@ Other test accounts:
 
 ## Database Schema
 
+### Hospital
+- Registered facilities submitting drape orders
+- Linked to users and orders
+
 ### User
 - Authentication and role management
+- Optional association to a hospital
 - Roles: ADMIN, FULFILLMENT, SUBMITTER
 
+### DrapeType
+- Catalog of available drape packs and kits
+- Linked to surgery types and orders
+
+### SurgeryType
+- Defines procedure types
+- Associates to default drape type and recommended constituents
+
+### Item
+- Catalog of inventory components used in drape kits
+- Reused across surgery defaults and individual orders
+
+### SurgeryTypeItem
+- Mapping table defining default items and quantities for each surgery type
+- Powers auto-suggestion of order contents
+
 ### Order
-- Hospital information
-- Surgery and drape types
+- References hospital, submitter, drape type, and surgery type selections
 - Status tracking (PENDING, IN_PROGRESS, COMPLETED, CANCELLED)
-- Customization notes
-- Timestamps (created, updated, completed)
+- Customization notes and timestamps (created, updated, completed)
 
 ### OrderItem
 - Item details (name, quantity, notes)
-- Associated with orders
+- Linked to catalog items when available while supporting custom entries
 
 ## Available Scripts
 
@@ -129,7 +155,8 @@ Other test accounts:
 - `npm run lint` - Run ESLint
 - `npm run type-check` - Run TypeScript type checking
 - `npm run db:generate` - Generate Prisma client
-- `npm run db:push` - Push schema changes to database
+- `npm run db:migrate` - Apply committed Prisma migrations
+- `npm run db:push` - Push schema changes directly (useful for rapid prototyping)
 - `npm run db:seed` - Seed database with sample data
 
 ## Features in Detail
