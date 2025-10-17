@@ -192,16 +192,73 @@ Other test accounts (password `password123`):
 
 ## API Endpoints
 
-### GET /api/orders
-Get all orders (with optional status filter)
-- Query params: `?status=PENDING|IN_PROGRESS|COMPLETED|CANCELLED`
-- Requires: FULFILLMENT role
+### Catalog Endpoints
 
-### GET /api/orders/[id]
+#### GET /api/drape-types
+Get all available drape types
+- Requires: Authenticated user
+- Returns: Array of drape types with id, name, and description
+
+#### GET /api/surgery-types
+Get all available surgery types
+- Requires: Authenticated user
+- Returns: Array of surgery types with default drape type information
+
+#### GET /api/surgery-types/[id]/defaults
+Get default items for a specific surgery type (auto-suggestion)
+- Requires: Authenticated user
+- Returns: Surgery type details with default drape type and default constituent items
+
+#### GET /api/items
+Search and browse item catalog
+- Query params: 
+  - `?search=keyword` - Search by name or description
+  - `?page=1` - Page number (default: 1)
+  - `?limit=50` - Items per page (default: 50)
+- Requires: Authenticated user
+- Returns: Paginated list of catalog items
+
+### Order Management Endpoints
+
+#### GET /api/orders
+Get all orders with filtering and pagination
+- Query params: 
+  - `?status=PENDING|IN_PROGRESS|COMPLETED|CANCELLED` - Filter by status
+  - `?hospitalId=id` - Filter by hospital
+  - `?page=1` - Page number (default: 1)
+  - `?limit=50` - Orders per page (default: 50)
+- Requires: FULFILLMENT role
+- Returns: Paginated list of orders
+
+#### POST /api/orders
+Create a new order
+- Body:
+  ```json
+  {
+    "drapeTypeId": "optional-id",
+    "drapeTypeName": "optional-custom-name",
+    "surgeryTypeId": "optional-id",
+    "surgeryTypeName": "optional-custom-name",
+    "customizationNotes": "optional notes",
+    "items": [
+      {
+        "itemId": "optional-catalog-item-id",
+        "itemName": "Item Name (required)",
+        "quantity": 1,
+        "notes": "optional item notes"
+      }
+    ]
+  }
+  ```
+- Requires: SUBMITTER role
+- Validates: Item quantities, catalog item IDs, user hospital association
+- Returns: Created order with 201 status
+
+#### GET /api/orders/[id]
 Get single order by ID
 - Requires: FULFILLMENT role
 
-### PATCH /api/orders/[id]
+#### PATCH /api/orders/[id]
 Update order status
 - Body: `{ status: "IN_PROGRESS" | "COMPLETED" | "CANCELLED" }`
 - Requires: FULFILLMENT role

@@ -7,19 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum UserRole {
-  ADMIN
-  FULFILLMENT
-  SUBMITTER
-}
-
-enum OrderStatus {
-  PENDING
-  IN_PROGRESS
-  COMPLETED
-  CANCELLED
-}
-
 model Hospital {
   id        String   @id @default(cuid())
   name      String   @unique
@@ -35,7 +22,7 @@ model User {
   id          String   @id @default(cuid())
   email       String   @unique
   name        String?
-  role        UserRole @default(SUBMITTER)
+  role        String   @default("SUBMITTER")
   password    String
   hospitalId  String?
   hospital    Hospital? @relation(fields: [hospitalId], references: [id])
@@ -108,7 +95,7 @@ model Order {
   surgeryTypeId    String?
   surgeryTypeName  String?
   surgeryType      SurgeryType? @relation(fields: [surgeryTypeId], references: [id])
-  status           OrderStatus @default(PENDING)
+  status           String      @default("PENDING")
   customizationNotes String?
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt

@@ -35,7 +35,13 @@ export function serializeOrder(order: OrderWithRelations) {
     updatedAt: order.updatedAt,
     completedAt: order.completedAt,
     submitter: order.submitter,
-    items: order.items.map((item) => ({
+    items: order.items.map((item: {
+      id: string
+      itemName: string
+      quantity: number
+      notes: string | null
+      item: { name: string } | null
+    }) => ({
       id: item.id,
       itemName: item.item?.name ?? item.itemName,
       quantity: item.quantity,

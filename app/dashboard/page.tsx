@@ -26,7 +26,7 @@ import { OrderDetailSheet } from '@/components/order-detail-sheet'
 import { useToast } from '@/components/ui/use-toast'
 import { Loader2, Package, LogOut } from 'lucide-react'
 import { signOut } from 'next-auth/react'
-import { OrderStatus } from '@prisma/client'
+import { OrderStatus } from '@/types/prisma'
 
 interface OrderItem {
   id: string
