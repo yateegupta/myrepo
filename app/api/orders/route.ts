@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma'
 import { orderInclude, serializeOrder } from '@/lib/order'
 import type { Prisma } from '@prisma/client'
 import { z } from 'zod'
+import { UserRole } from '@/types/prisma'
 
 const createOrderSchema = z.object({
   drapeTypeId: z.string().optional(),
@@ -26,7 +27,7 @@ export async function GET(request: Request) {
   try {
     const session = await getServerSession(authOptions)
 
-    if (!session || session.user.role !== 'FULFILLMENT') {
+    if (!session || session.user.role !== UserRole.FULFILLMENT) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -84,7 +85,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    if (session.user.role !== 'SUBMITTER' && session.user.role !== 'ADMIN') {
+    if (session.user.role !== UserRole.SUBMITTER && session.user.role !== UserRole.ADMIN) {
       return NextResponse.json(
         { error: 'Only submitters can create orders' },
         { status: 403 }
