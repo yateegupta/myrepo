@@ -54,6 +54,18 @@ interface Order {
   items: OrderItem[]
 }
 
+interface OrdersResponse {
+  orders: Order[]
+  pagination: {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
+  }
+}
+
+type StatusFilter = 'all' | OrderStatus
+
 const statusColors: Record<OrderStatus, string> = {
   PENDING: 'bg-yellow-100 text-yellow-800 border-yellow-200',
   IN_PROGRESS: 'bg-blue-100 text-blue-800 border-blue-200',
@@ -76,7 +88,7 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [isSheetOpen, setIsSheetOpen] = useState(false)
-  const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -100,16 +112,40 @@ export default function DashboardPage() {
   const fetchOrders = async () => {
     try {
       setIsLoading(true)
-      const url = statusFilter === 'all' 
-        ? '/api/orders' 
-        : `/api/orders?status=${statusFilter}`
+      const url =
+        statusFilter === 'all'
+          ? '/api/orders'
+          : `/api/orders?status=${statusFilter}`
       const response = await fetch(url)
-      if (response.ok) {
-        const data = await response.json()
-        setOrders(data)
-      } else {
+
+      if (!response.ok) {
         throw new Error('Failed to fetch orders')
       }
+
+      const data: OrdersResponse = await response.json()
+
+      if (!Array.isArray(data.orders)) {
+        throw new Error('Invalid response format')
+      }
+
+      setOrders(data.orders)
+
+      setSelectedOrder((currentSelectedOrder) => {
+        if (!currentSelectedOrder) {
+          return currentSelectedOrder
+        }
+
+        const updatedSelectedOrder = data.orders.find(
+          (order) => order.id === currentSelectedOrder.id
+        )
+
+        if (updatedSelectedOrder) {
+          return updatedSelectedOrder
+        }
+
+        setIsSheetOpen(false)
+        return null
+      })
     } catch (error) {
       toast({
         title: 'Error',
@@ -232,7 +268,7 @@ export default function DashboardPage() {
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">Filter by status:</span>
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as StatusFilter)}>
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="All Orders" />
                   </SelectTrigger>
@@ -259,7 +295,7 @@ export default function DashboardPage() {
                 <p className="text-muted-foreground">
                   {statusFilter === 'all'
                     ? 'There are no orders in the system yet.'
-                    : `There are no orders with status "${statusLabels[statusFilter as OrderStatus]}".`}
+                    : `There are no orders with status "${statusLabels[statusFilter]}".`}
                 </p>
               </div>
             ) : (
