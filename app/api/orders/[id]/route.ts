@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { orderInclude, serializeOrder } from '@/lib/order'
+import type { Prisma } from '@prisma/client'
 
 export async function GET(
   request: Request,
@@ -16,23 +18,14 @@ export async function GET(
 
     const order = await prisma.order.findUnique({
       where: { id: params.id },
-      include: {
-        submitter: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
-        items: true,
-      },
+      include: orderInclude,
     })
 
     if (!order) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
-    return NextResponse.json(order)
+    return NextResponse.json(serializeOrder(order))
   } catch (error) {
     console.error('Error fetching order:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
@@ -53,8 +46,8 @@ export async function PATCH(
     const body = await request.json()
     const { status } = body
 
-    const updateData: any = { status }
-    
+    const updateData: Prisma.OrderUpdateInput = { status }
+
     if (status === 'COMPLETED') {
       updateData.completedAt = new Date()
     }
@@ -62,19 +55,10 @@ export async function PATCH(
     const order = await prisma.order.update({
       where: { id: params.id },
       data: updateData,
-      include: {
-        submitter: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
-        items: true,
-      },
+      include: orderInclude,
     })
 
-    return NextResponse.json(order)
+    return NextResponse.json(serializeOrder(order))
   } catch (error) {
     console.error('Error updating order:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

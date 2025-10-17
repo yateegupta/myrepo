@@ -3,45 +3,14 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
-}
-
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  role      UserRole @default(SUBMITTER)
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  orders    Order[]
 }
 
 enum UserRole {
   ADMIN
   FULFILLMENT
   SUBMITTER
-}
-
-model Order {
-  id              String      @id @default(cuid())
-  orderNumber     String      @unique @default(cuid())
-  hospital        String
-  submitterId     String
-  submitter       User        @relation(fields: [submitterId], references: [id])
-  drapeType       String
-  surgeryType     String
-  status          OrderStatus @default(PENDING)
-  customizationNotes String?   @db.Text
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-  completedAt     DateTime?
-  items           OrderItem[]
-  
-  @@index([status])
-  @@index([submitterId])
-  @@index([createdAt])
 }
 
 enum OrderStatus {
@@ -51,15 +20,121 @@ enum OrderStatus {
   CANCELLED
 }
 
-model OrderItem {
+model Hospital {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  address   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users  User[]
+  orders Order[]
+}
+
+model User {
   id          String   @id @default(cuid())
-  orderId     String
-  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  itemName    String
-  quantity    Int      @default(1)
-  notes       String?
+  email       String   @unique
+  name        String?
+  role        UserRole @default(SUBMITTER)
+  password    String
+  hospitalId  String?
+  hospital    Hospital? @relation(fields: [hospitalId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
+
+  orders Order[]
+}
+
+model DrapeType {
+  id          String        @id @default(cuid())
+  name        String        @unique
+  description String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  surgeryTypes SurgeryType[] @relation("SurgeryDefaultDrape")
+  orders       Order[]
+}
+
+model SurgeryType {
+  id                  String        @id @default(cuid())
+  name                String        @unique
+  description         String?
+  defaultDrapeTypeId  String?
+  defaultDrapeType    DrapeType?    @relation("SurgeryDefaultDrape", fields: [defaultDrapeTypeId], references: [id])
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  defaultItems SurgeryTypeItem[]
+  orders       Order[]
+}
+
+model Item {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  unit        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  defaultForSurgeries SurgeryTypeItem[]
+  orderItems          OrderItem[]
+}
+
+model SurgeryTypeItem {
+  id             String       @id @default(cuid())
+  surgeryTypeId  String
+  itemId         String
+  defaultQuantity Int         @default(1)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  surgeryType SurgeryType @relation(fields: [surgeryTypeId], references: [id], onDelete: Cascade)
+  item        Item        @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@unique([surgeryTypeId, itemId])
+}
+
+model Order {
+  id               String      @id @default(cuid())
+  orderNumber      String      @unique @default(cuid())
+  hospitalId       String
+  hospital         Hospital    @relation(fields: [hospitalId], references: [id])
+  submitterId      String
+  submitter        User        @relation(fields: [submitterId], references: [id])
+  drapeTypeId      String?
+  drapeTypeName    String?
+  drapeType        DrapeType?  @relation(fields: [drapeTypeId], references: [id])
+  surgeryTypeId    String?
+  surgeryTypeName  String?
+  surgeryType      SurgeryType? @relation(fields: [surgeryTypeId], references: [id])
+  status           OrderStatus @default(PENDING)
+  customizationNotes String?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  completedAt      DateTime?
+
+  items OrderItem[]
+
+  @@index([status])
+  @@index([submitterId])
+  @@index([hospitalId])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id         String   @id @default(cuid())
+  orderId    String
+  itemId     String?
+  itemName   String
+  quantity   Int      @default(1)
+  notes      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  item  Item? @relation(fields: [itemId], references: [id])
+
   @@index([orderId])
+  @@index([itemId])
 }

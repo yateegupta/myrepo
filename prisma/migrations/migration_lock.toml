@@ -1,0 +1,2 @@
+# This file ensures that Prisma Migrate retains provider consistency between environments.
+provider = "sqlite"
