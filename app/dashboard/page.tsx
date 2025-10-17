@@ -87,7 +87,7 @@ export default function DashboardPage() {
         description: 'You do not have permission to access this page.',
         variant: 'destructive',
       })
-      router.push('/login')
+      router.push('/')
     }
   }, [status, session, router, toast])
 

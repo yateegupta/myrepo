@@ -33,7 +33,7 @@ export default function LoginPage() {
           variant: 'destructive',
         })
       } else {
-        router.push('/dashboard')
+        router.push('/')
       }
     } catch (error) {
       toast({
