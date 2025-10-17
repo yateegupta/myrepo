@@ -8,6 +8,7 @@ A modern web application for managing fulfillment operations, built with Next.js
 - **Order Management**: View and manage orders with real-time updates
 - **Order Details**: Comprehensive order information including items, notes, and timestamps
 - **Status Management**: Update order status (Pending → In Progress → Completed) with optimistic UI updates
+- **Hospital Order Workflow**: Multi-step Material UI wizard for hospitals to build, customize, and submit drape orders with suggested constituents
 - **Responsive Design**: Mobile-first design that works on all screen sizes
 - **Loading & Empty States**: Professional loading indicators and empty state designs
 - **Filter Orders**: Filter orders by status (Pending, In Progress, Completed, Cancelled)
