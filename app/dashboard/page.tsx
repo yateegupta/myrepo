@@ -93,7 +93,12 @@ export default function DashboardPage() {
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/login')
-    } else if (session?.user.role !== UserRole.FULFILLMENT) {
+    } else if (
+      session?.user.role !== UserRole.FULFILLMENT &&
+      session?.user.role !== UserRole.FULFILLMENT_AGENT &&
+      session?.user.role !== UserRole.ADMIN &&
+      session?.user.role !== UserRole.HOSPITAL_ADMIN
+    ) {
       toast({
         title: 'Access Denied',
         description: 'You do not have permission to access this page.',
@@ -104,7 +109,13 @@ export default function DashboardPage() {
   }, [status, session, router, toast])
 
   useEffect(() => {
-    if (status === 'authenticated' && session?.user.role === UserRole.FULFILLMENT) {
+    if (
+      status === 'authenticated' &&
+      (session?.user.role === UserRole.FULFILLMENT ||
+        session?.user.role === UserRole.FULFILLMENT_AGENT ||
+        session?.user.role === UserRole.ADMIN ||
+        session?.user.role === UserRole.HOSPITAL_ADMIN)
+    ) {
       fetchOrders()
     }
   }, [status, session, statusFilter])

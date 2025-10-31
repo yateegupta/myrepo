@@ -10,8 +10,23 @@ export default async function HomePage() {
     redirect('/login')
   }
 
-  if (session.user.role === UserRole.FULFILLMENT) {
+  if (
+    session.user.role === UserRole.FULFILLMENT ||
+    session.user.role === UserRole.FULFILLMENT_AGENT
+  ) {
     redirect('/dashboard')
+  }
+
+  if (session.user.role === UserRole.HOSPITAL_ADMIN || session.user.role === UserRole.ADMIN) {
+    redirect('/dashboard')
+  }
+
+  if (session.user.role === UserRole.SURGEON) {
+    redirect('/surgeon')
+  }
+
+  if (session.user.role === UserRole.NURSE) {
+    redirect('/nurse')
   }
 
   redirect('/orders/new')

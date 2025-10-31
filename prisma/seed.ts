@@ -3,6 +3,7 @@ import 'dotenv/config'
 import { PrismaClient } from '@prisma/client'
 import type { Hospital, DrapeType, SurgeryType, Item } from '@prisma/client'
 import { UserRole, OrderStatus } from '../types/prisma'
+import * as bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
 
@@ -155,12 +156,41 @@ async function main() {
   }
 
   // Seed users for each role
+  const hashedPassword = await bcrypt.hash('password123', 10)
+
   await prisma.user.create({
     data: {
       email: 'admin@example.com',
       name: 'Admin User',
       role: UserRole.ADMIN,
-      password: 'password123',
+      password: hashedPassword,
+    },
+  })
+
+  await prisma.user.create({
+    data: {
+      email: 'admin@hospital.com',
+      name: 'Hospital Admin',
+      role: UserRole.HOSPITAL_ADMIN,
+      password: hashedPassword,
+    },
+  })
+
+  await prisma.user.create({
+    data: {
+      email: 'surgeon@hospital.com',
+      name: 'Dr. Sarah Johnson',
+      role: UserRole.SURGEON,
+      password: hashedPassword,
+    },
+  })
+
+  await prisma.user.create({
+    data: {
+      email: 'nurse@hospital.com',
+      name: 'Nurse Emma Davis',
+      role: UserRole.NURSE,
+      password: hashedPassword,
     },
   })
 
@@ -169,7 +199,16 @@ async function main() {
       email: 'fulfillment@example.com',
       name: 'Fulfillment Coordinator',
       role: UserRole.FULFILLMENT,
-      password: 'password123',
+      password: hashedPassword,
+    },
+  })
+
+  await prisma.user.create({
+    data: {
+      email: 'fulfillment@hospital.com',
+      name: 'Fulfillment Agent',
+      role: UserRole.FULFILLMENT_AGENT,
+      password: hashedPassword,
     },
   })
 
@@ -178,7 +217,7 @@ async function main() {
       email: 'sarah.connor@generalhospital.org',
       name: 'Sarah Connor',
       role: UserRole.SUBMITTER,
-      password: 'password123',
+      password: hashedPassword,
       hospitalId: requireEntity(
         hospitals.get('General Hospital'),
         'Missing hospital seed: General Hospital'
@@ -191,7 +230,7 @@ async function main() {
       email: 'jack.ryan@stmary.org',
       name: 'Jack Ryan',
       role: UserRole.SUBMITTER,
-      password: 'password123',
+      password: hashedPassword,
       hospitalId: requireEntity(
         hospitals.get('St. Mary Medical Center'),
         'Missing hospital seed: St. Mary Medical Center'
