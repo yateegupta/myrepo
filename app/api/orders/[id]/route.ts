@@ -13,7 +13,13 @@ export async function GET(
   try {
     const session = await getServerSession(authOptions)
 
-    if (!session || session.user.role !== UserRole.FULFILLMENT) {
+    if (
+      !session ||
+      (session.user.role !== UserRole.FULFILLMENT &&
+        session.user.role !== UserRole.FULFILLMENT_AGENT &&
+        session.user.role !== UserRole.ADMIN &&
+        session.user.role !== UserRole.HOSPITAL_ADMIN)
+    ) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -40,7 +46,13 @@ export async function PATCH(
   try {
     const session = await getServerSession(authOptions)
 
-    if (!session || session.user.role !== UserRole.FULFILLMENT) {
+    if (
+      !session ||
+      (session.user.role !== UserRole.FULFILLMENT &&
+        session.user.role !== UserRole.FULFILLMENT_AGENT &&
+        session.user.role !== UserRole.ADMIN &&
+        session.user.role !== UserRole.HOSPITAL_ADMIN)
+    ) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 

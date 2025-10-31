@@ -1,14 +1,23 @@
-# Fulfillment Dashboard
+# Hospital Management System
 
-A modern web application for managing fulfillment operations, built with Next.js 14, TypeScript, and Prisma.
+A modern web application for managing hospital operations with comprehensive role-based access control, built with Next.js 14, TypeScript, and Prisma.
 
 ## Features
 
-- **Authentication**: Secure role-based access control with NextAuth.js
+- **Authentication**: Secure NextAuth.js authentication with bcrypt password hashing
+- **Role-Based Access Control**: Six distinct user roles with tailored permissions
+  - Hospital Admin (full system access)
+  - Surgeon (procedure management)
+  - Nurse (patient care and supplies)
+  - Fulfillment Agent (order fulfillment)
+  - Submitter (create orders)
+  - Admin (system administration)
 - **Order Management**: View and manage orders with real-time updates
 - **Order Details**: Comprehensive order information including items, notes, and timestamps
 - **Status Management**: Update order status (Pending → In Progress → Completed) with optimistic UI updates
-- **Hospital Order Workflow**: Multi-step Material UI wizard for hospitals to build, customize, and submit drape orders with suggested constituents
+- **Hospital Order Workflow**: Multi-step wizard for hospitals to build, customize, and submit drape orders
+- **Protected Routes**: Middleware-based route protection for role-specific pages
+- **Session Management**: Persistent sessions with client and server-side utilities
 - **Responsive Design**: Mobile-first design that works on all screen sizes
 - **Loading & Empty States**: Professional loading indicators and empty state designs
 - **Filter Orders**: Filter orders by status (Pending, In Progress, Completed, Cancelled)
@@ -78,16 +87,18 @@ npm run dev
 
 ## Demo Credentials
 
-After seeding the database, you can log in with:
+After seeding the database, you can log in with any of these accounts (all use password `password123`):
 
-- **Email**: fulfillment@example.com
-- **Password**: password123
-- **Role**: FULFILLMENT
-
-Other test accounts (password `password123`):
-- admin@example.com (ADMIN role)
-- sarah.connor@generalhospital.org (SUBMITTER role)
-- jack.ryan@stmary.org (SUBMITTER role)
+| Role | Email | Description |
+|------|-------|-------------|
+| Hospital Admin | admin@hospital.com | Full system access |
+| Surgeon | surgeon@hospital.com | Procedure management |
+| Nurse | nurse@hospital.com | Patient care and supplies |
+| Fulfillment Agent | fulfillment@hospital.com | Order fulfillment |
+| Admin | admin@example.com | System administration |
+| Fulfillment | fulfillment@example.com | Legacy fulfillment role |
+| Submitter | sarah.connor@generalhospital.org | Create orders |
+| Submitter | jack.ryan@stmary.org | Create orders |
 
 ## Project Structure
 

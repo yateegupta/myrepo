@@ -86,10 +86,35 @@ export default function LoginPage() {
               {isLoading ? 'Signing in...' : 'Sign In'}
             </Button>
           </form>
-          <div className="mt-4 text-sm text-muted-foreground">
-            <p>Demo credentials:</p>
-            <p>Email: fulfillment@example.com</p>
-            <p>Password: password123</p>
+          <div className="mt-4 border-t pt-4">
+            <p className="text-sm font-medium text-gray-700 mb-2">Test Credentials:</p>
+            <div className="text-xs text-gray-600 space-y-1">
+              <div className="bg-gray-50 p-2 rounded">
+                <p className="font-semibold">Hospital Admin</p>
+                <p>Email: admin@hospital.com</p>
+                <p>Password: password123</p>
+              </div>
+              <div className="bg-gray-50 p-2 rounded">
+                <p className="font-semibold">Surgeon</p>
+                <p>Email: surgeon@hospital.com</p>
+                <p>Password: password123</p>
+              </div>
+              <div className="bg-gray-50 p-2 rounded">
+                <p className="font-semibold">Nurse</p>
+                <p>Email: nurse@hospital.com</p>
+                <p>Password: password123</p>
+              </div>
+              <div className="bg-gray-50 p-2 rounded">
+                <p className="font-semibold">Fulfillment Agent</p>
+                <p>Email: fulfillment@hospital.com</p>
+                <p>Password: password123</p>
+              </div>
+              <div className="bg-gray-50 p-2 rounded">
+                <p className="font-semibold">Submitter</p>
+                <p>Email: sarah.connor@generalhospital.org</p>
+                <p>Password: password123</p>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
