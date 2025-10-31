@@ -1,269 +1,209 @@
-# Fulfillment Dashboard
+# Voice Reminder Mobile App
 
-A modern web application for managing fulfillment operations, built with Next.js 14, TypeScript, and Prisma.
+A minimalist cross-platform mobile app for setting timed voice reminders using text-to-speech technology.
 
 ## Features
 
-- **Authentication**: Secure role-based access control with NextAuth.js
-- **Order Management**: View and manage orders with real-time updates
-- **Order Details**: Comprehensive order information including items, notes, and timestamps
-- **Status Management**: Update order status (Pending → In Progress → Completed) with optimistic UI updates
-- **Hospital Order Workflow**: Multi-step Material UI wizard for hospitals to build, customize, and submit drape orders with suggested constituents
-- **Responsive Design**: Mobile-first design that works on all screen sizes
-- **Loading & Empty States**: Professional loading indicators and empty state designs
-- **Filter Orders**: Filter orders by status (Pending, In Progress, Completed, Cancelled)
+- **Time-based Reminders**: Set specific times for voice reminders
+- **Text-to-Speech**: Convert text messages to spoken reminders using device TTS
+- **Local Notifications**: Trigger reminders even when app is backgrounded
+- **Persistent Storage**: Save reminders locally using AsyncStorage
+- **Preview Functionality**: Test voice notes before scheduling
+- **Minimalist Design**: Clean, elegant UI with light blue theme and serif fonts
 
 ## Tech Stack
 
-- **Framework**: Next.js 14 (App Router)
+- **Framework**: React Native 0.72.6
 - **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **UI Components**: Radix UI (via shadcn/ui)
-- **Database ORM**: Prisma
-- **Authentication**: NextAuth.js
-- **Database**: SQLite (local) with optional PostgreSQL support
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18+ installed
-- npm or yarn package manager
-- (Optional) PostgreSQL database if you plan to run against Postgres instead of the default SQLite database
-
-### Installation
-
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd fulfillment-dashboard
-```
-
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Set up environment variables:
-```bash
-cp .env.example .env
-```
-
-Edit `.env` and configure your database connection and NextAuth settings. By default the project uses SQLite for local development:
-```
-DATABASE_URL="file:./dev.db"
-NEXTAUTH_URL="http://localhost:3000"
-NEXTAUTH_SECRET="your-secret-key-here"
-```
-
-If you prefer PostgreSQL, replace the `DATABASE_URL` value with your Postgres connection string:
-```
-DATABASE_URL="postgresql://user:password@localhost:5432/fulfillment_db?schema=public"
-```
-When switching providers, update the `provider` value in `prisma/schema.prisma` to `postgresql` before running migrations.
-
-4. Set up the database:
-```bash
-npm run db:generate
-npm run db:migrate
-npm run db:seed
-```
-
-5. Start the development server:
-```bash
-npm run dev
-```
-
-6. Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-## Demo Credentials
-
-After seeding the database, you can log in with:
-
-- **Email**: fulfillment@example.com
-- **Password**: password123
-- **Role**: FULFILLMENT
-
-Other test accounts (password `password123`):
-- admin@example.com (ADMIN role)
-- sarah.connor@generalhospital.org (SUBMITTER role)
-- jack.ryan@stmary.org (SUBMITTER role)
+- **TTS**: react-native-tts (Google TTS on Android, AVSpeechSynthesizer on iOS)
+- **Notifications**: react-native-push-notification
+- **Storage**: @react-native-async-storage/async-storage
+- **Date/Time Picker**: @react-native-community/datetimepicker
+- **Icons**: react-native-vector-icons
 
 ## Project Structure
 
 ```
-├── app/                    # Next.js app directory
-│   ├── api/               # API routes
-│   │   ├── auth/         # NextAuth configuration
-│   │   └── orders/       # Order management endpoints
-│   ├── dashboard/        # Dashboard page
-│   ├── login/            # Login page
-│   └── layout.tsx        # Root layout
-├── components/            # React components
-│   └── ui/               # Reusable UI components
-├── lib/                   # Utility functions
-│   ├── auth.ts           # NextAuth configuration
-│   ├── prisma.ts         # Prisma client
-│   └── utils.ts          # Helper functions
-├── prisma/               # Database schema and migrations
-│   ├── schema.prisma     # Prisma schema
-│   └── seed.ts           # Database seeding script
-└── types/                # TypeScript type definitions
-
+src/
+├── App.tsx                    # Main application component
+├── types/
+│   └── index.ts              # Type definitions
+└── services/
+    ├── NotificationService.ts # Local notification management
+    ├── TTSService.ts         # Text-to-speech functionality
+    └── StorageService.ts     # Local data persistence
 ```
 
-## Database Schema
+## Installation & Setup
 
-### Hospital
-- Registered facilities submitting drape orders
-- Linked to users and orders
+### Prerequisites
 
-### User
-- Authentication and role management
-- Optional association to a hospital
-- Roles: ADMIN, FULFILLMENT, SUBMITTER
+- Node.js 16+
+- React Native development environment
+- Android Studio (for Android development)
+- Xcode (for iOS development)
 
-### DrapeType
-- Catalog of available drape packs and kits
-- Linked to surgery types and orders
+### Installation
 
-### SurgeryType
-- Defines procedure types
-- Associates to default drape type and recommended constituents
+1. Install dependencies:
+```bash
+npm install
+```
 
-### Item
-- Catalog of inventory components used in drape kits
-- Reused across surgery defaults and individual orders
+2. Install iOS dependencies (iOS only):
+```bash
+cd ios && pod install && cd ..
+```
 
-### SurgeryTypeItem
-- Mapping table defining default items and quantities for each surgery type
-- Powers auto-suggestion of order contents
+3. Start the Metro bundler:
+```bash
+npm start
+```
 
-### Order
-- References hospital, submitter, drape type, and surgery type selections
-- Status tracking (PENDING, IN_PROGRESS, COMPLETED, CANCELLED)
-- Customization notes and timestamps (created, updated, completed)
+4. Run on Android:
+```bash
+npm run android
+```
 
-### OrderItem
-- Item details (name, quantity, notes)
-- Linked to catalog items when available while supporting custom entries
+5. Run on iOS:
+```bash
+npm run ios
+```
 
-## Available Scripts
+## Platform-Specific Setup
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm start` - Start production server
-- `npm run lint` - Run ESLint
-- `npm run type-check` - Run TypeScript type checking
-- `npm run db:generate` - Generate Prisma client
-- `npm run db:migrate` - Apply committed Prisma migrations
-- `npm run db:push` - Push schema changes directly (useful for rapid prototyping)
-- `npm run db:seed` - Seed database with sample data
+### Android
 
-## Features in Detail
+1. Add permissions to `android/app/src/main/AndroidManifest.xml`:
+```xml
+<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+<uses-permission android:name="android.permission.VIBRATE"/>
+<uses-permission android:name="android.permission.WAKE_LOCK"/>
+```
 
-### Authentication & Authorization
-- Role-based access control
-- Only users with FULFILLMENT role can access the dashboard
-- Secure session management with NextAuth.js
+2. Configure notification channels (handled automatically in NotificationService)
 
-### Order Management
-- View all orders in a responsive table
-- Filter by status
-- Click any row to view detailed information
-- Real-time status updates
+### iOS
 
-### Order Details
-- Comprehensive order information panel
-- View constituent items with quantities
-- Customization notes
-- Timeline with creation, update, and completion timestamps
-- Quick action buttons for status changes
+1. Add permissions to `Info.plist`:
+```xml
+<key>UIBackgroundModes</key>
+<array>
+    <string>background-fetch</string>
+    <string>background-processing</string>
+</array>
+```
 
-### Optimistic UI Updates
-- Instant feedback when updating order status
-- Automatic rollback on error
-- Toast notifications for success/error states
+2. Enable background app refresh in device settings
 
-### Responsive Design
-- Mobile-first approach
-- Adaptive table with hidden columns on smaller screens
-- Touch-friendly interface
-- Responsive drawer/sheet for order details
+## Usage
 
-## API Endpoints
+1. **Set Reminder Message**: Enter the text you want spoken
+2. **Select Time**: Choose when the reminder should trigger
+3. **Preview**: Test the voice note immediately
+4. **Schedule**: Set the reminder for the selected time
+5. **Manage**: View and cancel scheduled reminders
 
-### Catalog Endpoints
+## Core Components
 
-#### GET /api/drape-types
-Get all available drape types
-- Requires: Authenticated user
-- Returns: Array of drape types with id, name, and description
+### NotificationService
 
-#### GET /api/surgery-types
-Get all available surgery types
-- Requires: Authenticated user
-- Returns: Array of surgery types with default drape type information
+Handles all local notification functionality:
+- Scheduling time-based notifications
+- Managing notification channels (Android)
+- Handling notification interactions
+- Permission management
 
-#### GET /api/surgery-types/[id]/defaults
-Get default items for a specific surgery type (auto-suggestion)
-- Requires: Authenticated user
-- Returns: Surgery type details with default drape type and default constituent items
+### TTSService
 
-#### GET /api/items
-Search and browse item catalog
-- Query params: 
-  - `?search=keyword` - Search by name or description
-  - `?page=1` - Page number (default: 1)
-  - `?limit=50` - Items per page (default: 50)
-- Requires: Authenticated user
-- Returns: Paginated list of catalog items
+Manages text-to-speech functionality:
+- Platform-specific TTS initialization
+- Speech customization (rate, pitch, language)
+- Voice selection
+- Error handling
 
-### Order Management Endpoints
+### StorageService
 
-#### GET /api/orders
-Get all orders with filtering and pagination
-- Query params: 
-  - `?status=PENDING|IN_PROGRESS|COMPLETED|CANCELLED` - Filter by status
-  - `?hospitalId=id` - Filter by hospital
-  - `?page=1` - Page number (default: 1)
-  - `?limit=50` - Orders per page (default: 50)
-- Requires: FULFILLMENT role
-- Returns: Paginated list of orders
+Provides persistent data storage:
+- Save/retrieve reminders
+- Cleanup expired reminders
+- Export/import functionality
+- Storage statistics
 
-#### POST /api/orders
-Create a new order
-- Body:
-  ```json
-  {
-    "drapeTypeId": "optional-id",
-    "drapeTypeName": "optional-custom-name",
-    "surgeryTypeId": "optional-id",
-    "surgeryTypeName": "optional-custom-name",
-    "customizationNotes": "optional notes",
-    "items": [
-      {
-        "itemId": "optional-catalog-item-id",
-        "itemName": "Item Name (required)",
-        "quantity": 1,
-        "notes": "optional item notes"
-      }
-    ]
-  }
-  ```
-- Requires: SUBMITTER role
-- Validates: Item quantities, catalog item IDs, user hospital association
-- Returns: Created order with 201 status
+## Future Enhancements
 
-#### GET /api/orders/[id]
-Get single order by ID
-- Requires: FULFILLMENT role
+### Planned Features
+- **Recurring Reminders**: Daily, weekly, monthly options
+- **Custom Voice Options**: Multiple voice selections
+- **Cloud Syncing**: Multi-device synchronization
+- **Multiple Reminder Management**: Bulk operations
+- **Snooze Functionality**: Postpone reminders
+- **Categories & Labels**: Organize reminders
+- **Priority Levels**: Urgent/normal/low priority
+- **Location-based Reminders**: Trigger at specific locations
 
-#### PATCH /api/orders/[id]
-Update order status
-- Body: `{ status: "IN_PROGRESS" | "COMPLETED" | "CANCELLED" }`
-- Requires: FULFILLMENT role
+### Technical Improvements
+- **Background Location**: Location-triggered reminders
+- **Widget Support**: Home screen widgets
+- **Watch Integration**: Apple Watch/Android Wear
+- **Voice Input**: Speech-to-text for message entry
+- **Smart Scheduling**: AI-powered optimal timing
+- **Analytics**: Usage statistics and insights
+
+### UI/UX Enhancements
+- **Dark Mode**: System theme support
+- **Custom Themes**: Multiple color schemes
+- **Animations**: Smooth transitions and micro-interactions
+- **Accessibility**: VoiceOver and TalkBack optimizations
+- **Internationalization**: Multi-language support
+- **Adaptive Layouts**: Tablet and foldable phone support
+
+## Development Notes
+
+### Code Organization
+- Separation of concerns with service layer
+- TypeScript for type safety
+- Async/await for asynchronous operations
+- Error handling with user-friendly messages
+
+### Performance Considerations
+- Efficient storage with cleanup routines
+- Minimal re-renders with React hooks
+- Optimized TTS initialization
+- Background processing for notifications
+
+### Security & Privacy
+- All data stored locally
+- No network dependencies
+- Minimal permissions requested
+- No user data collection
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Notifications not working**:
+   - Check app permissions
+   - Verify notification channel setup (Android)
+   - Ensure background app refresh is enabled (iOS)
+
+2. **TTS not speaking**:
+   - Verify device has TTS capabilities
+   - Check language settings
+   - Test with different text content
+
+3. **Storage issues**:
+   - Clear app data and restart
+   - Check available device storage
+   - Verify AsyncStorage permissions
+
+### Debug Tips
+
+- Enable console logging for service initialization
+- Test with simple reminder messages
+- Verify notification timing with short delays
+- Check platform-specific permission settings
 
 ## License
 
-MIT
+MIT License - feel free to use this project as a foundation for your own voice reminder applications.
