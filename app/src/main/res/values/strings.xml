@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Voice Reminder</string>
+    <string name="set_reminder">Set Reminder</string>
+    <string name="preview_voice">Preview Voice Note</string>
+    <string name="clear">Clear</string>
+    <string name="reminder_message">Reminder Message</string>
+    <string name="enter_reminder_message">Enter your reminder message here...</string>
+    <string name="select_time">Select Reminder Time</string>
+    <string name="reminder_notification_title">Voice Reminder</string>
+    <string name="reminder_notification_text">Time for your reminder!</string>
+    <string name="channel_name">Reminder Notifications</string>
+    <string name="channel_description">Notifications for voice reminders</string>
+    <string name="permission_required">Permission Required</string>
+    <string name="notification_permission_message">This app needs notification permission to send you reminders.</string>
+    <string name="grant_permission">Grant Permission</string>
+    <string name="cancel">Cancel</string>
+    <string name="reminder_set_success">Reminder set successfully!</string>
+    <string name="reminder_set_failed">Failed to set reminder. Please try again.</string>
+</resources>
